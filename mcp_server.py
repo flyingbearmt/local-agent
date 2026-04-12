@@ -19,6 +19,7 @@ from mcp.server.fastmcp import FastMCP
 from rag.ingest import ingest_document
 from rag.retrieve import search_documents
 from rag.store import get_collection
+from connectors.memory import add_memo, search_memos, list_memo_topics, delete_memo
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
@@ -82,6 +83,42 @@ def list_docs() -> str:
     for src in sorted(sources):
         lines.append(f"  - {src}  ({sources[src]} chunks)")
     return "\n".join(lines)
+
+
+@mcp.tool()
+def add_memo_tool(topic: str, content: str, tags: list[str] | None = None) -> str:
+    """
+    Add a memo to your personal memory file.
+    topic: short title for the memo.
+    content: body text.
+    tags: optional list of tag strings for categorization.
+    """
+    return add_memo(topic, content, tags)
+
+
+@mcp.tool()
+def search_memos_tool(query: str, max_results: int = 10) -> str:
+    """
+    Search through your personal memos for a query string.
+    Returns matching memo sections (up to max_results).
+    """
+    return search_memos(query, max_results)
+
+
+@mcp.tool()
+def list_memo_topics_tool() -> str:
+    """
+    List all memo topics currently stored in the memory file.
+    """
+    return list_memo_topics()
+
+
+@mcp.tool()
+def delete_memo_tool(topic: str) -> str:
+    """
+    Delete a memo by its exact topic title.
+    """
+    return delete_memo(topic)
 
 
 if __name__ == "__main__":

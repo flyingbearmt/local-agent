@@ -131,11 +131,10 @@ The server is registered globally in `~/.claude.json`:
 }
 ```
 
-Once registered, Claude Code can call `ingest_doc`, `search_docs`, `update_doc`, and `list_docs` directly in any conversation.
+Once registered, Claude Code can call all tools directly in any conversation.
 
 Notes:
 - `ingest_doc` supports local files and URLs.
-- Memo tools (`add_memo`, etc.) are currently only available in the Terminal REPL (not exposed via MCP).
 
 ---
 
