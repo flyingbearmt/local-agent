@@ -1,9 +1,6 @@
 import os
 from datetime import datetime
 from typing import Optional, List
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 def get_memory_file_path() -> str:

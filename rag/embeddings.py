@@ -1,7 +1,8 @@
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 
 # Loaded once, reused for every embed call
 _model = None
+_reranker = None
 
 
 def get_model() -> SentenceTransformer:
@@ -10,6 +11,15 @@ def get_model() -> SentenceTransformer:
         # all-MiniLM-L6-v2: small, fast, good quality — great for learning RAG
         _model = SentenceTransformer("all-MiniLM-L6-v2")
     return _model
+
+
+def get_reranker() -> CrossEncoder:
+    global _reranker
+    if _reranker is None:
+        # Cross-encoder scores [query, chunk] jointly — slow, so only used to
+        # re-order the shortlist, not the whole corpus.
+        _reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+    return _reranker
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
