@@ -67,7 +67,7 @@ def list_docs(scope: str = "personal") -> str:
 
 @mcp.tool()
 def sync_team_docs() -> str:
-    """Sync committed Markdown in the configured team's knowledge/android/ Git tree.
+    """Sync committed Markdown in the team's agent-knowledge/knowledge/android/ Git tree.
 
     Only the local read-only index is changed; no path or ref argument is accepted.
     """

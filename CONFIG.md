@@ -1,10 +1,10 @@
 # Configuration Options
 
-The local-agent supports different LLM backends and additional features through environment variables.
+These options configure the terminal REPL, not the stdio MCP server. For MCP setup, see [README](README.md).
 
 ## Environment Variables
 
-Create a `.env` file in the project root. See `env.template` for a complete example.
+Create a `.env` file in the project root. See `.env.example` for a complete example.
 
 ### Model Selection
 ```bash

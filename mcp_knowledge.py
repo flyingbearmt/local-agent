@@ -16,7 +16,7 @@ from rag.rerank import reciprocal_rank_fusion, rerank
 
 
 SCOPES = {"personal": "personal_docs", "team": "team_docs"}
-GIT_PREFIX = "knowledge/android/"
+GIT_PREFIX = "agent-knowledge/knowledge/android/"
 MAX_TEAM_FILE_BYTES = 2_000_000
 
 

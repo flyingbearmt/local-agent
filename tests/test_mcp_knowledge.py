@@ -59,10 +59,10 @@ class KnowledgeTests(unittest.TestCase):
         self.addCleanup(reranker.stop)
 
     def commit(self, filename="guide.md", content="Android reviewed guidance"):
-        document = self.repo / "knowledge" / "android" / filename
+        document = self.repo / "agent-knowledge" / "knowledge" / "android" / filename
         document.parent.mkdir(parents=True, exist_ok=True)
         document.write_text(content, encoding="utf-8")
-        git(self.repo, "add", "knowledge/android")
+        git(self.repo, "add", "agent-knowledge/knowledge/android")
         git(self.repo, "commit", "-qm", "reviewed")
         return document
 
@@ -76,7 +76,7 @@ class KnowledgeTests(unittest.TestCase):
         self.assertNotIn("Android reviewed guidance", knowledge.search_documents("Android", scope="personal"))
         team = knowledge.search_documents("Android", scope="team")
         self.assertIn("Android reviewed guidance", team)
-        self.assertIn("knowledge/android/guide.md", team)
+        self.assertIn("agent-knowledge/knowledge/android/guide.md", team)
         self.assertIn("Git blob:", team)
         self.assertNotIn("Private preference", team)
         self.assertIn("[team]", knowledge.list_documents("all"))
@@ -91,7 +91,7 @@ class KnowledgeTests(unittest.TestCase):
         self.assertIn("0 updated", knowledge.sync_team())
         self.assertNotIn("Uncommitted draft", knowledge.list_documents("team"))
         document.write_text("Second revision", encoding="utf-8")
-        git(self.repo, "add", "knowledge/android")
+        git(self.repo, "add", "agent-knowledge/knowledge/android")
         git(self.repo, "commit", "-qm", "revision")
         self.assertIn("1 updated", knowledge.sync_team())
         self.assertIn("Second revision", knowledge.search_documents("revision", scope="team"))
@@ -105,7 +105,7 @@ class KnowledgeTests(unittest.TestCase):
     def test_paths_cannot_escape_personal_area(self):
         self.commit()
         for target in (
-            str(self.repo / "knowledge/android/guide.md"),
+            str(self.repo / "agent-knowledge/knowledge/android/guide.md"),
             "../../escape.md", "https://example.org/note.md",
         ):
             with self.subTest(target=target), self.assertRaises(ValueError):
@@ -123,21 +123,25 @@ class KnowledgeTests(unittest.TestCase):
 
     def test_git_source_ignores_symlinks_and_non_markdown(self):
         self.commit()
-        (self.repo / "knowledge/android/link.md").symlink_to(self.repo / ".git/config")
-        (self.repo / "knowledge/android/key.txt").write_text("secret", encoding="utf-8")
-        git(self.repo, "add", "knowledge/android")
+        (self.repo / "agent-knowledge/knowledge/android/link.md").symlink_to(self.repo / ".git/config")
+        (self.repo / "agent-knowledge/knowledge/android/key.txt").write_text("secret", encoding="utf-8")
+        old_dir = self.repo / "knowledge" / "android"
+        old_dir.mkdir(parents=True)
+        (old_dir / "old.md").write_text("Not team knowledge", encoding="utf-8")
+        git(self.repo, "add", "agent-knowledge/knowledge/android", "knowledge/android")
         git(self.repo, "commit", "-qm", "other files")
         knowledge.sync_team()
         listing = knowledge.list_documents("team")
         self.assertIn("guide.md", listing)
         self.assertNotIn("link.md", listing)
         self.assertNotIn("key.txt", listing)
+        self.assertNotIn("old.md", listing)
 
     def test_failed_sync_does_not_purge_and_recovers(self):
         document = self.commit(content="Original guidance")
         knowledge.sync_team()
         document.write_text("Revised guidance", encoding="utf-8")
-        git(self.repo, "add", "knowledge/android")
+        git(self.repo, "add", "agent-knowledge/knowledge/android")
         git(self.repo, "commit", "-qm", "revised")
         with patch.object(knowledge, "embed_texts", side_effect=RuntimeError("embedding unavailable")):
             with self.assertRaises(RuntimeError):
